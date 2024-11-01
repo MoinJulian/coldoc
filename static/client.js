@@ -75,7 +75,6 @@ function init() {
   const socket = io();
 
   socket.on("connect", () => {
-    console.log("I am", socket.id);
     handleSocket(socket);
   });
 }
@@ -88,6 +87,10 @@ init();
  */
 function handleSocket(socket) {
   join(socket);
+  syncTitle(socket);
+  syncText(socket);
+  syncName(socket);
+  showEditorNames(socket);
 }
 
 /**
@@ -96,4 +99,63 @@ function handleSocket(socket) {
  */
 function join(socket) {
   socket.emit("join", getDocId());
+}
+
+/**
+ * Syncs the title with the server
+ * @param {Socket} socket
+ */
+function syncTitle(socket) {
+  title_input.addEventListener("input", () => {
+    socket.emit("title", title_input.value);
+  });
+
+  socket.on(
+    "title",
+    /** @param {string} title */ (title) => {
+      title_input.value = title;
+    }
+  );
+}
+
+/**
+ * Syncs the text with the server
+ * @param {Socket} socket
+ */
+function syncText(socket) {
+  textarea.addEventListener("input", () => {
+    socket.emit("text", textarea.value);
+  });
+
+  socket.on(
+    "text",
+    /** @param {string} text */ (text) => {
+      textarea.value = text;
+    }
+  );
+}
+
+/**
+ * Syncs the name with the server
+ * @param {Socket} socket
+ */
+function syncName(socket) {
+  const my_name = localStorage.getItem("name") ?? "Anonymous";
+  name_input.value = my_name;
+
+  socket.emit("name", name_input.value);
+  name_input.addEventListener("input", () => {
+    socket.emit("name", name_input.value);
+    localStorage.setItem("name", name_input.value);
+  });
+}
+
+/**
+ * Shows the names of the editors in the document
+ * @param {Socket} socket
+ */
+function showEditorNames(socket) {
+  socket.on("editor_names", (names) => {
+    editor_names_display.innerText = names.join(", ");
+  });
 }
