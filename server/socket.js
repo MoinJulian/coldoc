@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import { getDocInMemory, getOrCreateDocInMemory } from "./docs_memory.js";
+import { deleteDocFromMemory, getDocInMemory, getOrCreateDocInMemory } from "./docs_memory.js";
 
 /**
  * @typedef {import("socket.io").Socket} Socket
@@ -24,6 +24,7 @@ export function handleSocket(server) {
       handleName(socket, name);
     });
     socket.on("disconnect", () => handleDisconnect(socket));
+    socket.on("delete", () => handleDelete(socket));
   });
 
   /**
@@ -93,5 +94,16 @@ export function handleSocket(server) {
 
     delete doc_mem.editors[socket.id];
     sendEditorNames(doc_mem);
+  }
+
+  /**
+   * Handles the deletion of a document
+   * @param {Socket} socket
+   */
+  function handleDelete(socket) {
+    const doc_id = socket.data.doc_id;
+    if (!doc_id) return;
+    deleteDocFromMemory(doc_id);
+    io.to(doc_id).emit("deleted");
   }
 }

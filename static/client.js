@@ -77,6 +77,8 @@ function init() {
   socket.on("connect", () => {
     handleSocket(socket);
   });
+  enableCopyButton();
+  displayWordCount(textarea?.value ?? "");
 }
 
 init();
@@ -91,6 +93,7 @@ function handleSocket(socket) {
   syncText(socket);
   syncName(socket);
   showEditorNames(socket);
+  handleDelete(socket);
 }
 
 /**
@@ -125,12 +128,14 @@ function syncTitle(socket) {
 function syncText(socket) {
   textarea.addEventListener("input", () => {
     socket.emit("text", textarea.value);
+    displayWordCount(textarea.value);
   });
 
   socket.on(
     "text",
     /** @param {string} text */ (text) => {
       textarea.value = text;
+      displayWordCount(textarea.value);
     }
   );
 }
@@ -158,4 +163,60 @@ function showEditorNames(socket) {
   socket.on("editor_names", (names) => {
     editor_names_display.innerText = names.join(", ");
   });
+}
+
+/**
+ * Deletes the document
+ * @param {Socket} socket
+ */
+function handleDelete(socket) {
+  delete_button.addEventListener("click", () => {
+    const sure = confirm("Are you sure you want to delete this document?");
+    if (sure) socket.emit("delete");
+  });
+
+  socket.on("deleted", () => {
+    displayDeletion();
+  });
+}
+
+function displayDeletion() {
+  main_element.innerHTML =
+    "This document has been deleted. You will be redirected to the home page in 3 seconds.";
+
+  setTimeout(() => {
+    window.location.href = "/";
+  }, 3000);
+}
+
+/**
+ * Enables the copy button to copy the URL of the document
+ */
+function enableCopyButton() {
+  copy_button.addEventListener("click", async () => {
+    await navigator.clipboard.writeText(window.location.href);
+    alert("The URL has been copied to the clipboard.");
+  });
+}
+
+/**
+ *
+ * @param {string} text - The text to get the word count of
+ * @returns The word count
+ */
+function getWordCount(text) {
+  const words = text
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word != "");
+
+  return words.length;
+}
+
+/**
+ * Displays the word count of the text
+ * @param {string} text
+ */
+function displayWordCount(text) {
+  word_count_display.innerText = `${getWordCount(text)} words`;
 }
