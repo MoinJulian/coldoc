@@ -4,10 +4,42 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/app.css" />
+    <script
+      src="https://cdn.socket.io/4.7.4/socket.io.min.js"
+      integrity="sha384-Gr6Lu2Ajx28mzwyVR8CFkULdCU7kMlZ9UthllibdOSo6qAiN+yXNHqtgdTvFXMT4"
+      crossorigin="anonymous"
+    ></script>
     <title>Document</title>
   </head>
   <body data-doc-id="<%= id %>">
-    <h1>Document Page (<%= id %>)</h1>
+    <nav>
+      <h1>Coldoc</h1>
+      <button id="delete_btn">Delete</button>
+      <button id="copy_btn">Copy URL</button>
+      <a href="/">Home</a>
+    </nav>
+    <main>
+      <input type="text" id="title_input" value="Untitled" />
+      <aside id="title_status"></aside>
+
+      <section aria-label="users">
+        <div>
+          <span>Editos</span>
+          <span id="editor_names"></span>
+        </div>
+
+        <div>
+          <label for="name_input">Your name:</label>
+          <input type="text" id="name_input" spellcheck="false" />
+        </div>
+      </section>
+
+      <textarea aria-label="content of the document"></textarea>
+      <aside>
+        <div id="text_status"></div>
+        <div id="word_count"></div>
+      </aside>
+    </main>
     <script src="/client.js"></script>
   </body>
 </html>
